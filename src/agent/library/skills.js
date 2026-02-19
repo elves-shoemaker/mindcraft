@@ -1083,10 +1083,14 @@ export async function goToGoal(bot, goal) {
     nonDestructiveMovements.digCost = 10;
 
     const destructiveMovements = new pf.Movements(bot);
+    destructiveMovements.canDig = true;
+    destructiveMovements.allow1by1towers = true;
+    destructiveMovements.digCost = 1;
+    destructiveMovements.scafoldingBlocks = ['dirt', 'cobblestone', 'gravel', 'sand', 'grass_block', 'stone', 'bricks', 'nether_brick', 'blackstone', 'deepslate'];
 
     let final_movements = destructiveMovements;
 
-    const pathfind_timeout = 1000;
+    const pathfind_timeout = 5000;
     if (await bot.pathfinder.getPathTo(nonDestructiveMovements, goal, pathfind_timeout).status === 'success') {
         final_movements = nonDestructiveMovements;
         log(bot, `Found non-destructive path.`);

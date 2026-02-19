@@ -9,7 +9,7 @@ export class SelfPrompter {
         this.interrupt = false;
         this.prompt = '';
         this.idle_time = 0;
-        this.cooldown = 2000;
+        this.cooldown = 500;
     }
 
     start(prompt) {
@@ -60,26 +60,20 @@ export class SelfPrompter {
         }
         console.log('starting self-prompt loop')
         this.loop_active = true;
-        let no_command_count = 0;
-        const MAX_NO_COMMAND = 3;
         while (!this.interrupt) {
-            const msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command with this syntax: !commandName. Respond:`;
+            const goals = [
+                `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command with this syntax: !commandName. Be creative and act freely! Respond:`,
+                `You are autonomously exploring and surviving. Goal: '${this.prompt}'. Pick any useful action and use a command now! Respond:`,
+                `Act now! You're in a Minecraft world with goal: '${this.prompt}'. Use a command to do something useful. Respond:`,
+                `Don't wait! Take initiative. Your goal: '${this.prompt}'. What will you do? Use a command! Respond:`,
+            ];
+            const msg = goals[Math.floor(Math.random() * goals.length)];
             
             let used_command = await this.agent.handleMessage('system', msg, -1);
             if (!used_command) {
-                no_command_count++;
-                if (no_command_count >= MAX_NO_COMMAND) {
-                    let out = `Agent did not use command in the last ${MAX_NO_COMMAND} auto-prompts. Stopping auto-prompting.`;
-                    this.agent.openChat(out);
-                    console.warn(out);
-                    this.state = STOPPED;
-                    break;
-                }
+                console.warn('No command used, retrying...');
             }
-            else {
-                no_command_count = 0;
-                await new Promise(r => setTimeout(r, this.cooldown));
-            }
+            await new Promise(r => setTimeout(r, this.cooldown));
         }
         console.log('self prompt loop stopped')
         this.loop_active = false;
@@ -87,21 +81,9 @@ export class SelfPrompter {
     }
 
     update(delta) {
-        // automatically restarts loop
         if (this.state === ACTIVE && !this.loop_active && !this.interrupt) {
-            if (this.agent.isIdle())
-                this.idle_time += delta;
-            else
-                this.idle_time = 0;
-
-            if (this.idle_time >= this.cooldown) {
-                console.log('Restarting self-prompting...');
-                this.startLoop();
-                this.idle_time = 0;
-            }
-        }
-        else {
-            this.idle_time = 0;
+            console.log('Restarting self-prompting...');
+            this.startLoop();
         }
     }
 

@@ -137,6 +137,12 @@ export class Agent {
                 await new Promise((resolve) => setTimeout(resolve, 10000));
                 this.checkAllPlayersPresent();
 
+                // Start autonomous mode if enabled
+                if (settings.autonomous_mode) {
+                    console.log('Starting autonomous mode...');
+                    this.self_prompter.start(settings.autonomous_goal);
+                }
+
             } catch (error) {
                 console.error('Error in spawn event:', error);
                 process.exit(0);

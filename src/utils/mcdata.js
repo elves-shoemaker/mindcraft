@@ -78,6 +78,13 @@ export function initBot(username) {
         mc_version = bot.version;
         mcdata = minecraftData(mc_version);
         Item = prismarine_items(mc_version);
+        
+        const movements = new pf.Movements(bot, mcdata);
+        movements.canDig = true;
+        movements.allow1by1towers = true;
+        movements.digCost = 1;
+        movements.scafoldingBlocks = ['dirt', 'cobblestone', 'gravel', 'sand', 'grass_block', 'stone', 'bricks', 'nether_brick', 'blackstone', 'deepslate'];
+        bot.pathfinder.setMovements(movements);
     });
 
     return bot;

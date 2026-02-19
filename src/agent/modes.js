@@ -97,7 +97,7 @@ const modes_list = [
         distance: 2,
         stuck_time: 0,
         last_time: Date.now(),
-        max_stuck_time: 20,
+        max_stuck_time: 60,
         prev_dig_block: null,
         update: async function (agent) {
             if (agent.isIdle()) { 
@@ -126,7 +126,6 @@ const modes_list = [
                     const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 10000);
                     await skills.moveAway(bot, 5);
                     clearTimeout(crashTimeout);
-                    say(agent, 'I\'m free.');
                 });
             }
             this.last_time = Date.now();
@@ -317,15 +316,17 @@ async function execute(mode, agent, func, timeout=-1) {
     let should_reprompt = 
         interrupted_action && // it interrupted a previous action
         !agent.actions.resume_func && // there is no resume function
-        !agent.self_prompter.isActive() && // self prompting is not on
         !code_return.interrupted; // this mode action was not interrupted by something else
 
     if (should_reprompt) {
-        // auto prompt to respond to the interruption
         let role = convoManager.inConversation() ? agent.last_sender : 'system';
         let logs = agent.bot.modes.flushBehaviorLog();
         agent.handleMessage(role, `(AUTO MESSAGE)Your previous action '${interrupted_action}' was interrupted by ${mode.name}.
         Your behavior log: ${logs}\nRespond accordingly.`);
+    }
+    
+    if (agent.self_prompter.isStopped() && settings.autonomous_mode) {
+        agent.self_prompter.start(settings.autonomous_goal);
     }
 }
 
