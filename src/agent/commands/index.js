@@ -209,7 +209,7 @@ function numParams(command) {
     return commandParams(command).length;
 }
 
-export async function executeCommand(agent, message) {
+export async function executeCommand(agent, message, timeoutMs = 60000) {
     let parsed = parseCommandMessage(message);
     if (typeof parsed === 'string')
         return parsed; //The command was incorrectly formatted or an invalid input was given.
@@ -223,7 +223,12 @@ export async function executeCommand(agent, message) {
         if (numArgs !== numParams(command))
             return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
         else {
-            const result = await command.perform(agent, ...parsed.args);
+            const result = await Promise.race([
+                command.perform(agent, ...parsed.args),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error(`Command ${command.name} timed out after ${timeoutMs}ms`)), timeoutMs)
+                )
+            ]).catch(err => `Error: ${err.message}`);
             return result;
         }
     }
