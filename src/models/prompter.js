@@ -9,6 +9,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { selectAPI, createModel } from './_model_map.js';
+import { sendDiscord } from '../utils/discord.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -250,7 +251,9 @@ export class Prompter {
             }
 
             if (generation?.includes('</think>')) {
-                const [_, afterThink] = generation.split('</think>')
+                const [think, afterThink] = generation.split('</think>')
+                await sendDiscord(`[${this.agent.name}] <think>: ${think}
+</think>`);
                 generation = afterThink
             }
 
@@ -273,6 +276,11 @@ export class Prompter {
         let resp = await this.code_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
         await this._saveLog(prompt, messages, resp, 'coding');
+        if (resp?.includes('</think>')) {
+            const [think] = resp.split('</think>');
+            await sendDiscord(`[${this.agent.name}] <think>: ${think}
+</think>`);
+        }
         return resp;
     }
 
@@ -296,6 +304,11 @@ export class Prompter {
         messages.push({role: 'user', content: new_message});
         prompt = await this.replaceStrings(prompt, null, null, messages);
         let res = await this.chat_model.sendRequest([], prompt);
+        if (res?.includes('</think>')) {
+            const [think] = res.split('</think>');
+            await sendDiscord(`[${this.agent.name}] <think>: ${think}
+</think>`);
+        }
         return res.trim().toLowerCase() === 'respond';
     }
 
@@ -329,6 +342,7 @@ export class Prompter {
             console.log('Failed to set goal:', res);
             return null;
         }
+        await sendDiscord(`[${this.agent.name}] Goal: ${goal.name} x${goal.quantity}`);
         goal.quantity = parseInt(goal.quantity);
         return goal;
     }

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import * as Mindcraft from './src/mindcraft/mindcraft.js';
 import settings from './settings.js';
 import yargs from 'yargs';

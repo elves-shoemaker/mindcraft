@@ -2,7 +2,7 @@ import minecraftData from 'minecraft-data';
 import settings from '../agent/settings.js';
 import { createBot } from 'mineflayer';
 import prismarine_items from 'prismarine-item';
-import { pathfinder } from 'mineflayer-pathfinder';
+import { pathfinder, Movements } from 'mineflayer-pathfinder';
 import { plugin as pvp } from 'mineflayer-pvp';
 import { plugin as collectblock } from 'mineflayer-collectblock';
 import { plugin as autoEat } from 'mineflayer-auto-eat';
@@ -79,7 +79,7 @@ export function initBot(username) {
         mcdata = minecraftData(mc_version);
         Item = prismarine_items(mc_version);
         
-        const movements = new pf.Movements(bot, mcdata);
+        const movements = new Movements(bot, mcdata);
         movements.canDig = true;
         movements.allow1by1towers = true;
         movements.digCost = 1;
