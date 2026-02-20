@@ -9,7 +9,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { selectAPI, createModel } from './_model_map.js';
-import { sendDiscord } from '../utils/discord.js';
+import { emitDiscordWebhook } from '../utils/discord.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -252,7 +252,7 @@ export class Prompter {
 
             if (generation?.includes('</think>')) {
                 const [think, afterThink] = generation.split('</think>')
-                await sendDiscord(`[${this.agent.name}] <think>: ${think}
+                await emitDiscordWebhook(`[${this.agent.name}] <think>: ${think}
 </think>`);
                 generation = afterThink
             }
@@ -278,7 +278,7 @@ export class Prompter {
         await this._saveLog(prompt, messages, resp, 'coding');
         if (resp?.includes('</think>')) {
             const [think] = resp.split('</think>');
-            await sendDiscord(`[${this.agent.name}] <think>: ${think}
+            await emitDiscordWebhook(`[${this.agent.name}] <think>: ${think}
 </think>`);
         }
         return resp;
@@ -306,7 +306,7 @@ export class Prompter {
         let res = await this.chat_model.sendRequest([], prompt);
         if (res?.includes('</think>')) {
             const [think] = res.split('</think>');
-            await sendDiscord(`[${this.agent.name}] <think>: ${think}
+            await emitDiscordWebhook(`[${this.agent.name}] <think>: ${think}
 </think>`);
         }
         return res.trim().toLowerCase() === 'respond';
@@ -342,7 +342,7 @@ export class Prompter {
             console.log('Failed to set goal:', res);
             return null;
         }
-        await sendDiscord(`[${this.agent.name}] Goal: ${goal.name} x${goal.quantity}`);
+        await emitDiscordWebhook(`[${this.agent.name}] Goal: ${goal.name} x${goal.quantity}`);
         goal.quantity = parseInt(goal.quantity);
         return goal;
     }

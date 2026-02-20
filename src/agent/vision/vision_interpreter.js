@@ -1,7 +1,7 @@
 import { Vec3 } from 'vec3';
 import { Camera } from "./camera.js";
 import fs from 'fs';
-import { sendDiscord } from '../../utils/discord.js';
+import { emitDiscordWebhook } from '../../utils/discord.js';
 
 export class VisionInterpreter {
     constructor(agent, allow_vision) {
@@ -73,7 +73,7 @@ export class VisionInterpreter {
             const blockInfo = this.getCenterBlockInfo();
             const result = await this.agent.prompter.promptVision(messages, imageBuffer);
 
-            await sendDiscord(`[${this.agent.name}] Vision: ${result}`, `${this.fp}/${filename}.jpg`);
+            await emitDiscordWebhook(`[${this.agent.name}] Vision: ${result}`, `${this.fp}/${filename}.jpg`);
 
             return result + `\n${blockInfo}`;
 

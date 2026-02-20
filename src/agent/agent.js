@@ -17,12 +17,11 @@ import settings from './settings.js';
 import { Task } from './tasks/tasks.js';
 import { speak } from './speak.js';
 import { log, validateNameFormat, handleDisconnection } from './connection_handler.js';
-import { sendDiscord } from '../utils/discord.js';
+import { emitDiscordWebhook } from '../utils/discord.js';
 
 export class Agent {
     async start(load_mem=false, init_message=null, count_id=0) {
         this.last_sender = null;
-        this.last_screenshot_path = null;
         this.count_id = count_id;
         this.command_count = 0;
         this._disconnectHandled = false;
@@ -95,7 +94,7 @@ export class Agent {
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');
-            sendDiscord(`[${this.name}] logged in!`);
+            emitDiscordWebhook(`[${this.name}] logged in!`);
             serverProxy.login();
             
             // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
@@ -121,17 +120,7 @@ export class Agent {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 
                 console.log(`${this.name} spawned.`);
-                sendDiscord(`[${this.name}] spawned!`, this.last_screenshot_path);
-                
-                if (settings.allow_vision && this.vision_interpreter?.camera) {
-                    try {
-                        const filename = await this.vision_interpreter.camera.capture();
-                        this.last_screenshot_path = `${this.vision_interpreter.fp}${filename}.jpg`;
-                        await sendDiscord(`[${this.name}] Initial view`, this.last_screenshot_path);
-                    } catch (e) {
-                        console.warn('Failed to capture initial screenshot:', e);
-                    }
-                }
+                emitDiscordWebhook(`[${this.name}] spawned!`);
                 
                 this.clearBotLogs();
               
@@ -386,17 +375,7 @@ export class Agent {
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
                 this.command_count++;
                 
-                if (this.command_count % 100 === 0 && settings.allow_vision && this.vision_interpreter?.camera) {
-                    try {
-                        const filename = await this.vision_interpreter.camera.capture();
-                        this.last_screenshot_path = `${this.vision_interpreter.fp}${filename}.jpg`;
-                        await sendDiscord(`[${this.name}] Command #${this.command_count}: ${command_name} → ${execute_res}`, this.last_screenshot_path);
-                    } catch (e) {
-                        sendDiscord(`[${this.name}] Command #${this.command_count}: ${command_name} → ${execute_res}`);
-                    }
-                } else {
-                    sendDiscord(`[${this.name}] Command #${this.command_count}: ${command_name} → ${execute_res}`);
-                }
+                emitDiscordWebhook(`[${this.name}] Command #${this.command_count}: ${command_name} → ${execute_res}`);
                 
                 used_command = true;
 
@@ -511,17 +490,7 @@ export class Agent {
         this.bot.on('messagestr', async (message, _, jsonMsg) => {
             if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {
                 console.log('Agent died: ', message);
-                sendDiscord(`[${this.name}] 💀 Died: ${message}`, this.last_screenshot_path);
-                
-                if (settings.allow_vision && this.vision_interpreter?.camera) {
-                    try {
-                        const filename = await this.vision_interpreter.camera.capture();
-                        this.last_screenshot_path = `${this.vision_interpreter.fp}${filename}.jpg`;
-                        await sendDiscord(`[${this.name}] Last view before death`, this.last_screenshot_path);
-                    } catch (e) {
-                        console.warn('Failed to capture death screenshot:', e);
-                    }
-                }
+                emitDiscordWebhook(`[${this.name}] 💀 Died: ${message}`);
                 
                 let death_pos = this.bot.entity.position;
                 this.memory_bank.rememberPlace('last_death_position', death_pos.x, death_pos.y, death_pos.z);
@@ -590,7 +559,7 @@ export class Agent {
                 await this.history.save();
                 // await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 second for save to complete
                 console.log('Task finished:', res.message);
-                sendDiscord(`[${this.name}] ✅ Task finished: ${res.message} (Score: ${res.score})`, this.last_screenshot_path);
+                emitDiscordWebhook(`[${this.name}] ✅ Task finished: ${res.message} (Score: ${res.score})`);
                 this.killAll();
             }
         }
