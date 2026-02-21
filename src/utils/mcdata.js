@@ -98,6 +98,8 @@ export function isHuntable(mob) {
 
 export function isHostile(mob) {
     if (!mob || !mob.name) return false;
+    const neutralMobs = ['enderman', 'piglin', 'zombie_pigman'];
+    if (neutralMobs.includes(mob.name.toLowerCase())) return false;
     return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
 }
 
