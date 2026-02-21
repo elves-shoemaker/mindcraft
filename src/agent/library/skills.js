@@ -1456,9 +1456,14 @@ export async function avoidEnemies(bot, distance=16) {
      * await skills.avoidEnemies(bot, 8);
      **/
     bot.modes.pause('self_preservation'); // prevents damage-on-low-health from interrupting the bot
+    let creeper = world.getNearestEntityWhere(bot, entity => entity.name === 'creeper', distance);
+    let fleeDistance = creeper ? 48 : distance;
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
+    if (creeper) {
+        log(bot, `Creeper detected! Fleeing to ${fleeDistance} blocks away.`);
+    }
     while (enemy) {
-        const follow = new pf.goals.GoalFollow(enemy, distance+1); // move a little further away
+        const follow = new pf.goals.GoalFollow(enemy, fleeDistance+1); // move a little further away
         const inverted_goal = new pf.goals.GoalInvert(follow);
         bot.pathfinder.setMovements(new pf.Movements(bot));
         bot.pathfinder.setGoal(inverted_goal, true);
@@ -1472,7 +1477,7 @@ export async function avoidEnemies(bot, distance=16) {
         }
     }
     bot.pathfinder.stop();
-    log(bot, `Moved ${distance} away from enemies.`);
+    log(bot, `Moved ${fleeDistance} away from enemies.`);
     return true;
 }
 
