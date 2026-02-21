@@ -88,6 +88,38 @@ const modes_list = [
         }
     },
     {
+        name: 'hunger_check',
+        description: 'Find food or cook when hungry.',
+        interrupts: ['action:followPlayer'],
+        on: true,
+        active: false,
+        warningGiven: false,
+        update: async function (agent) {
+            const bot = agent.bot;
+            const food = bot.food;
+            
+            if (food <= 10 && !this.active) {
+                if (!this.warningGiven) {
+                    say(agent, `I'm getting hungry (${food}/20). Need to find food!`);
+                    this.warningGiven = true;
+                }
+                if (food <= 6) {
+                    execute(this, agent, async () => {
+                        await skills.collectBlock(bot, 'wheat', 8);
+                        const items = ['bread', 'cooked_porkchop', 'cooked_beef', 'cooked_chicken', 'cooked_mutton', 'cooked_rabbit'];
+                        const hasFood = items.some(item => bot.inventory.items().some(slot => slot.name === item));
+                        if (!hasFood) {
+                            say(agent, 'Not enough food, need to cook!');
+                        }
+                    });
+                }
+            }
+            else if (food > 12) {
+                this.warningGiven = false;
+            }
+        }
+    },
+    {
         name: 'unstuck',
         description: 'Attempt to get unstuck when in the same place for a while. Interrupts some actions.',
         interrupts: ['all'],
