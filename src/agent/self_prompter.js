@@ -1,6 +1,14 @@
 const STOPPED = 0
 const ACTIVE = 1
 const PAUSED = 2
+
+let policyContent = '';
+try {
+    policyContent = require('fs').readFileSync('./bots/policy.md', 'utf8');
+} catch (e) {
+    policyContent = '';
+}
+
 export class SelfPrompter {
     constructor(agent) {
         this.agent = agent;
@@ -61,11 +69,12 @@ export class SelfPrompter {
         console.log('starting self-prompt loop')
         this.loop_active = true;
         while (!this.interrupt) {
+            const policyPrefix = policyContent ? `【ポリシー】\n${policyContent}\n\n` : '';
             const goals = [
-                `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command with this syntax: !commandName. Be creative and act freely! Respond:`,
-                `You are autonomously exploring and surviving. Goal: '${this.prompt}'. Pick any useful action and use a command now! Respond:`,
-                `Act now! You're in a Minecraft world with goal: '${this.prompt}'. Use a command to do something useful. Respond:`,
-                `Don't wait! Take initiative. Your goal: '${this.prompt}'. What will you do? Use a command! Respond:`,
+                `You are self-prompting with the goal: '${this.prompt}'. ${policyPrefix}Your next response MUST contain a command with this syntax: !commandName. Be creative and act freely! Respond:`,
+                `You are autonomously exploring and surviving. Goal: '${this.prompt}'. ${policyPrefix}Pick any useful action and use a command now! Respond:`,
+                `Act now! You're in a Minecraft world with goal: '${this.prompt}'. ${policyPrefix}Use a command to do something useful. Respond:`,
+                `Don't wait! Take initiative. Your goal: '${this.prompt}'. ${policyPrefix}What will you do? Use a command! Respond:`,
             ];
             const msg = goals[Math.floor(Math.random() * goals.length)];
             
