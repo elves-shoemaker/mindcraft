@@ -58,7 +58,7 @@ const settings = {
     "block_place_delay": 0, // delay between placing blocks (ms) if using newAction. helps avoid bot being kicked by anti-cheat mechanisms on servers.
 
     "autonomous_mode": true, // enable full autonomy - agent will act on its own without human prompts
-    "autonomous_goal": "Always be doing something useful in Minecraft. Explore new areas. Mine resources (coal, iron, gold, diamond, stone, wood). Build structures. Hunt animals. Fight mobs. Collect items. Craft items. Cook food. Plant crops. Don't just stand there - act freely and creatively!",
+    "autonomous_goal": "Always be doing something useful in Minecraft. Explore new areas. Mine resources (coal, iron, gold, diamond, stone, wood). Build structures. Hunt animals. Fight mobs. Collect items. Craft items. Cook food. Plant crops. Use chests to store and retrieve items efficiently. Don't just stand there - act freely and creatively!",
 
     "log_all_prompts": false, // log ALL prompts to file
 
