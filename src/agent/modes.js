@@ -180,7 +180,13 @@ const modes_list = [
         interrupts: ['all'],
         on: true,
         active: false,
+        lastCheck: 0,
+        cooldown: 10,
         update: async function (agent) {
+            const now = Date.now();
+            if (now - this.lastCheck < this.cooldown * 1000) return;
+            this.lastCheck = now;
+            
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 say(agent, `Aaa! A ${enemy.name.replace("_", " ")}!`);
@@ -196,12 +202,27 @@ const modes_list = [
         interrupts: ['all'],
         on: true,
         active: false,
+        lastCheck: 0,
+        cooldown: 10,
         update: async function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
-            if (enemy && await world.isClearPath(agent.bot, enemy)) {
+            const bot = agent.bot;
+            const now = Date.now();
+            if (now - this.lastCheck < this.cooldown * 1000) return;
+            this.lastCheck = now;
+            
+            const weapons = bot.inventory.items().filter(item => 
+                item.name.includes('sword') || (item.name.includes('axe') && !item.name.includes('pickaxe')) ||
+                item.name.includes('pickaxe') || item.name.includes('shovel')
+            );
+            if (weapons.length === 0) {
+                return;
+            }
+            
+            const enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), 8);
+            if (enemy && await world.isClearPath(bot, enemy)) {
                 say(agent, `Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.defendSelf(agent.bot, 8);
+                    await skills.defendSelf(bot, 8);
                 });
             }
         }
@@ -212,7 +233,13 @@ const modes_list = [
         interrupts: ['action:followPlayer'],
         on: true,
         active: false,
+        lastCheck: 0,
+        cooldown: 10,
         update: async function (agent) {
+            const now = Date.now();
+            if (now - this.lastCheck < this.cooldown * 1000) return;
+            this.lastCheck = now;
+            
             const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
             if (huntable && await world.isClearPath(agent.bot, huntable)) {
                 execute(this, agent, async () => {
