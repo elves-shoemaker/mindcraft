@@ -94,9 +94,15 @@ const modes_list = [
         on: true,
         active: false,
         warningGiven: false,
+        lastCheck: 0,
+        cooldown: 60,
         update: async function (agent) {
             const bot = agent.bot;
             const food = bot.food;
+            const now = Date.now();
+            
+            if (now - this.lastCheck < this.cooldown * 1000) return;
+            this.lastCheck = now;
             
             if (food <= 10 && !this.active) {
                 if (!this.warningGiven) {
