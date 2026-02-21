@@ -84,7 +84,10 @@ export function initBot(username) {
         movements.allow1by1towers = true;
         movements.digCost = 1;
         movements.scafoldingBlocks = ['dirt', 'cobblestone', 'gravel', 'sand', 'grass_block', 'stone', 'bricks', 'nether_brick', 'blackstone', 'deepslate'];
+        movements.walkSpeed = 1.5;
         bot.pathfinder.setMovements(movements);
+        
+        bot.physics.speed = 1.5;
     });
 
     return bot;
