@@ -60,12 +60,30 @@ export class SelfPrompter {
         }
         console.log('starting self-prompt loop')
         this.loop_active = true;
-        while (!this.interrupt) {
+
+const RULES = `CRITICAL RULES (obey in order):
+0. OXYGEN: If underwater, STOP all reasoning. Look UP, hold jump, swim up. Oxygen > Everything.
+1. STUCK_EMERGENCY: If stuck for 30s, use !moveAway(100) to reset. Standing still is death.
+2. HUNGER: If < 6, stop everything. Use !nearbyEntities to find ANY mob or break leaves for apples. Eat raw meat if needed.
+3. INVENTORY IS TRUTH: Check !inventory first. Use what you HAVE to craft. If empty, you are Tier 0.
+4. SMELTING & CRAFTING: 
+   - RAW IRON: You cannot craft iron_ingot. You MUST use a furnace (!craftRecipe("furnace") with 8 cobblestone) to SMELT iron_ore/raw_iron.
+   - USE WHAT YOU HAVE: If you have cobblestone, craft stone_pickaxe NOW. If you have planks, make sticks. Your inventory is the solution - don't search for things you already have!
+5. MOVEMENT IS MINING: To go up, you MUST mine a path into the wall: move 1 block forward and break 1 block above your head level, creating a diagonal upward path. Repeat this to rise. NEVER search for "stairs" items.
+6. NO APOLOGIES: Do not apologize or explain. Only output !commands. !collectBlocks is a VALID command for stone, dirt, and ores.
+7. DIGGING IS FREE: Breaking blocks to create paths is ALWAYS allowed and required. Digging is your primary way to move!
+8. CRAFTING: Logs -> Planks -> Sticks -> Tools. 
+9. MILESTONES: Wood -> Stone -> Iron.`;
+
+        // 補助メッセージ
+        const craftingCheck = 'COMMAND INFO: Use !collectBlocks(block_name, count) to clear a path. To go up from underground, break blocks diagonally above you: 1 block forward for every 1 block you rise. This diagonal tunnel is your way out. Smelt iron_ore in a furnace to get iron_ingot.';
+
+while (!this.interrupt) {
             const goals = [
-                `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command with this syntax: !commandName. Be creative and act freely! Respond:`,
-                `You are autonomously exploring and surviving. Goal: '${this.prompt}'. Pick any useful action and use a command now! Respond:`,
-                `Act now! You're in a Minecraft world with goal: '${this.prompt}'. Use a command to do something useful. Respond:`,
-                `Don't wait! Take initiative. Your goal: '${this.prompt}'. What will you do? Use a command! Respond:`,
+                `Goal: '${this.prompt}'. ${RULES} ${craftingCheck} Now respond with !command:`,
+                `Your goal: '${this.prompt}'. ${RULES} ${craftingCheck} Use !command now:`,
+                `Act: '${this.prompt}'. ${RULES} ${craftingCheck} !command:`,
+                `Initiative: '${this.prompt}'. ${RULES} ${craftingCheck} What !command?`,
             ];
             const msg = goals[Math.floor(Math.random() * goals.length)];
             
