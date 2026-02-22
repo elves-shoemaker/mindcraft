@@ -3,7 +3,7 @@
 
   "model": {
     "api": "openai",
-    "model": "devstral-small-2-24b-instruct-2512",
+    "model": "qwen3-vl-8b-instruct",
     "url": "http://192.168.0.23:1234/v1",
     "params": {
       "max_tokens": 256,
@@ -13,13 +13,13 @@
 
   "code_model": {
     "api": "openai",
-    "model": "devstral-small-2-24b-instruct-2512",
+    "model": "qwen3-vl-8b-instruct",
     "url": "http://192.168.0.23:1234/v1"
   },
 
   "vision_model": {
     "api": "openai",
-    "model": "devstral-small-2-24b-instruct-2512",
+    "model": "qwen3-vl-8b-instruct",
     "url": "http://192.168.0.23:1234/v1"
   },
 
