@@ -23,5 +23,9 @@
     "url": "http://192.168.0.23:1234/v1"
   },
 
-  "embedding": null
+  "embedding": {
+    "api": "openai",
+    "model": "text-embedding-mxbai-embed-large-v1",
+    "url": "http://192.168.0.23:1234/v1"
+  }
 }
